@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to Calculate the Volume of a Horizontal Cylindrical Tank</title>
+<meta name="description" content="Full and partly filled horizontal cylindrical tanks: the formula, two worked examples, a Python snippet, and interactive diagrams that show why a quarter-full tank holds only 19.6 percent of its volume.">
+<style>
+  :root { --ink:#1a2b3c; --muted:#5a6b7a; --accent:#0b6fa4; --soft:#eef5f9; --line:#d7e3ea; --liquid:#2fa8dd; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--ink); line-height:1.65; background:#fff; }
+  header { background:linear-gradient(135deg,#0b3d5c,#0b6fa4); color:#fff; padding:42px 20px 34px; }
+  header .wrap, main, footer .wrap { max-width:860px; margin:0 auto; }
+  header h1 { margin:0 0 10px; font-size:2rem; line-height:1.25; }
+  header p { margin:0; opacity:.92; font-size:1.05rem; }
+  header .brand { display:inline-block; margin-top:14px; font-size:.85rem; letter-spacing:.04em; text-transform:uppercase; opacity:.85; }
+  main { padding:28px 20px 40px; }
+  h2 { margin-top:38px; padding-top:6px; border-top:2px solid var(--line); }
+  h2:first-child { border-top:0; margin-top:0; }
+  code, pre { background:var(--soft); border-radius:6px; }
+  code { padding:2px 5px; font-size:.92em; }
+  pre { padding:14px 16px; overflow-x:auto; }
+  pre code { padding:0; background:none; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:20px 0; }
+  .card h3 { margin-top:0; }
+  .diagram { display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start; }
+  .diagram figure { margin:0; flex:1 1 260px; text-align:center; }
+  .diagram figcaption { font-size:.9rem; color:var(--muted); margin-top:6px; }
+  .controls { margin:14px 0 6px; }
+  .controls label { display:block; font-weight:600; margin:10px 0 4px; }
+  .controls input[type=range] { width:100%; }
+  .controls input[type=number], .controls select { padding:7px 9px; border:1px solid var(--line); border-radius:6px; font-size:1rem; }
+  .readout { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+  .stat { flex:1 1 140px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  .stat b { display:block; font-size:1.35rem; color:var(--accent); }
+  .stat span { font-size:.85rem; color:var(--muted); }
+  table { border-collapse:collapse; width:100%; margin:14px 0; }
+  th, td { border:1px solid var(--line); padding:8px 10px; text-align:right; }
+  th:first-child, td:first-child { text-align:left; }
+  th { background:var(--soft); }
+  tr.hl td { background:#e3f2fa; font-weight:600; }
+  .note { font-size:.92rem; color:var(--muted); }
+  footer { border-top:2px solid var(--line); padding:22px 20px 34px; color:var(--muted); font-size:.92rem; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>How to Calculate the Volume of a Horizontal Cylindrical Tank</h1>
+    <p>A full tank uses the same formula as any cylinder. A partly filled tank does not, and the interactive diagrams below show exactly why.</p>
+    <span class="brand">cylindervolume-calculator.com</span>
+  </div>
+</header>
+<main>
+
+  <p>A horizontal cylindrical tank is the same shape as a standing cylinder, turned on its side. Fuel tanks, water bowsers, LPG bullets and many farm tanks are built this way, so knowing how much one holds matters before you buy, fill or size a pump for it.</p>
+  <p>The good news is that a full horizontal tank uses the same formula as any cylinder. The tricky part is only a partly filled tank, where the liquid surface cuts a circular segment instead of a full circle.</p>
+
+  <h2>The formula</h2>
+  <p>For a cylinder of radius r and length L (the length plays the role of height here):</p>
+  <p><strong>V = pi x r<sup>2</sup> x L</strong></p>
+  <p>If you measured the diameter d instead of the radius, use this form:</p>
+  <p><strong>V = (pi x d<sup>2</sup> x L) / 4</strong></p>
+  <p>Keep radius and length in the same unit before you start. Mixing cm and metres is the most common mistake, and it throws the answer out by a factor of 100 or more.</p>
+
+  <div class="card">
+    <h3>Try it: full-tank calculator</h3>
+    <p>Enter a radius and length to see the full volume at once. This uses the same formula as above.</p>
+    <div class="controls">
+      <label for="radius">Radius</label>
+      <input type="number" id="radius" value="0.6" min="0.01" step="0.01"> 
+      <label for="length">Length</label>
+      <input type="number" id="length" value="2.0" min="0.01" step="0.01">
+      <label for="unit">Units</label>
+      <select id="unit">
+        <option value="m" selected>metres</option>
+        <option value="cm">centimetres</option>
+      </select>
+    </div>
+    <div class="readout">
+      <div class="stat"><b id="outM3">2.262 m&sup3;</b><span>cubic metres</span></div>
+      <div class="stat"><b id="outL">2,261.9 L</b><span>litres</span></div>
+      <div class="stat"><b id="outGal">597.5 gal</b><span>US gallons</span></div>
+    </div>
+  </div>
+
+  <h2>Worked example 1: a 2-metre fuel tank</h2>
+  <p>Take a horizontal tank with radius 0.6 m and length 2.0 m.</p>
+  <ol>
+    <li>Square the radius: 0.6<sup>2</sup> = 0.36</li>
+    <li>Multiply by pi: 0.36 x 3.14159 = 1.131 m<sup>2</sup> (the area of the circular end)</li>
+    <li>Multiply by the length: 1.131 x 2.0 = <strong>2.262 m<sup>3</sup></strong></li>
+  </ol>
+  <p>That is <strong>2,261.9 litres</strong>, or about <strong>597.5 US gallons</strong> when full.</p>
+
+  <h2>Worked example 2: a drum lying on its side</h2>
+  <p>A drum has radius 30 cm and length 120 cm.</p>
+  <ol>
+    <li>Base area: pi x 30<sup>2</sup> = pi x 900 = 2,827.43 cm<sup>2</sup></li>
+    <li>Volume: 2,827.43 x 120 = <strong>339,292 cm<sup>3</sup></strong></li>
+    <li>That is <strong>339.29 litres</strong>, or about <strong>89.6 US gallons</strong>.</li>
+  </ol>
+
+  <h2>Doing it in code</h2>
+  <p>The same formula is three lines in Python, handy if you are sizing several tanks at once:</p>
+<pre><code>import math
+
+def cylinder_volume(radius, length):
+    return math.pi * radius ** 2 * length
+
+print(cylinder_volume(0.6, 2.0))   # 2.2619 cubic metres
+print(cylinder_volume(0.6, 2.0) * 1000)  # 2261.9 litres</code></pre>
+  <p>Keep the units consistent in the inputs and the output follows in the matching cubic unit.</p>
+
+  <h2>What changes when the tank is only partly full</h2>
+  <p>A full tank is simple, but a partly filled horizontal tank is not half full at half depth. The liquid surface forms a circular segment, so the volume grows slowly at first, faster in the middle, then slowly again near the top. As a guide, a tank filled to a quarter of its depth holds only about 19.6 percent of its full volume, not 25 percent. If you need exact part-fill figures, work through the <a href="https://www.cylindervolume-calculator.com/horizontal/">volume of a horizontal cylinder</a> page, which covers the segment calculation step by step.</p>
+  <p>For a quick full-tank check without doing the arithmetic by hand, use a free <a href="https://www.cylindervolume-calculator.com/">cylinder volume calculator</a> and enter the radius and length. It shows the step-by-step working and converts the result to litres, gallons, cubic feet and more.</p>
+
+  <div class="card">
+    <h3>Try it: partly filled tank explorer</h3>
+    <p>Drag the slider to change the fill depth of the 2-metre fuel tank from worked example 1 (radius 0.6 m, full volume 2,261.9 litres). Watch how the volume lags behind the depth at the bottom and top of the tank.</p>
+    <div class="diagram">
+      <figure>
+        <svg id="crossSvg" width="220" height="220" viewBox="0 0 220 220" role="img" aria-label="Circular cross-section of a horizontal tank with liquid fill">
+          <defs>
+            <clipPath id="tankClip"><circle cx="110" cy="110" r="90"/></clipPath>
+          </defs>
+          <circle cx="110" cy="110" r="90" fill="#f4fafc" stroke="#0b3d5c" stroke-width="3"/>
+          <g clip-path="url(#tankClip)"><rect id="liquidRect" x="10" y="155" width="200" height="100" fill="#2fa8dd"/></g>
+          <line id="levelLine" x1="20" y1="155" x2="200" y2="155" stroke="#0b3d5c" stroke-width="2" stroke-dasharray="5 4"/>
+          <line x1="110" y1="110" x2="200" y2="110" stroke="#c0392b" stroke-width="2"/>
+          <text x="152" y="102" fill="#c0392b" font-size="14">r</text>
+          <circle cx="110" cy="110" r="3" fill="#0b3d5c"/>
+        </svg>
+        <figcaption>End view: the liquid is the blue circular segment.</figcaption>
+      </figure>
+      <figure>
+        <svg id="sideSvg" width="300" height="150" viewBox="0 0 300 150" role="img" aria-label="Side view of a horizontal tank with liquid level">
+          <defs>
+            <clipPath id="sideClip"><rect x="15" y="25" width="270" height="100" rx="50"/></clipPath>
+          </defs>
+          <rect x="15" y="25" width="270" height="100" rx="50" fill="#f4fafc" stroke="#0b3d5c" stroke-width="3"/>
+          <g clip-path="url(#sideClip)"><rect id="sideLiquid" x="15" y="97.5" width="270" height="60" fill="#2fa8dd"/></g>
+          <line id="sideLevel" x1="15" y1="97.5" x2="285" y2="97.5" stroke="#0b3d5c" stroke-width="2" stroke-dasharray="5 4"/>
+        </svg>
+        <figcaption>Side view: the same liquid level, seen from the side.</figcaption>
+      </figure>
+    </div>
+    <div class="controls">
+      <label for="depth">Fill depth: <span id="depthLabel">25%</span> of the tank diameter</label>
+      <input type="range" id="depth" min="0" max="100" value="25" step="1">
+    </div>
+    <div class="readout">
+      <div class="stat"><b id="volPct">19.6%</b><span>of full volume</span></div>
+      <div class="stat"><b id="volL">443.3 L</b><span>litres in the tank</span></div>
+      <div class="stat"><b id="volGal">117.1 gal</b><span>US gallons in the tank</span></div>
+    </div>
+    <p class="note">The volume comes from the exact circular-segment area, not a straight-line guess: segment area = r&sup2; &times; arccos((r &minus; h) / r) &minus; (r &minus; h) &times; &radic;(2rh &minus; h&sup2;), where h is the fill depth.</p>
+  </div>
+
+  <h2>Depth vs volume, at a glance</h2>
+  <p>For any horizontal cylinder, the share of volume at a given fill depth is the same whatever its size. The highlighted row is the quarter-depth case from above.</p>
+  <table>
+    <tr><th>Fill depth</th><th>Volume held</th></tr>
+    <tr><td>10%</td><td>5.2%</td></tr>
+    <tr class="hl"><td>25%</td><td>19.6%</td></tr>
+    <tr><td>50%</td><td>50.0%</td></tr>
+    <tr><td>75%</td><td>80.4%</td></tr>
+    <tr><td>90%</td><td>94.8%</td></tr>
+    <tr><td>100%</td><td>100.0%</td></tr>
+  </table>
+
+  <h2>FAQ</h2>
+  <p><strong>Does a horizontal cylinder hold the same volume as a vertical one?</strong><br>
+  Yes, when both are full and have the same radius and length. Turning a cylinder on its side changes the orientation, not the volume.</p>
+  <p><strong>Why is my tank's rated capacity lower than this calculation?</strong><br>
+  Rated capacity often leaves headspace for expansion, vents and fittings, and the stated size may be nominal rather than exact. Measure the inside dimensions for the true volume.</p>
+  <p><strong>How do I convert cubic metres to litres?</strong><br>
+  Multiply by 1,000. One cubic metre is 1,000 litres, so 2.262 m<sup>3</sup> is 2,262 litres (2,261.9 litres exact).</p>
+
+</main>
+<footer>
+  <div class="wrap">
+    <p>An informational guide to horizontal cylindrical tank volume. Figures use the circular-segment formula and are worked from the examples above. cylindervolume-calculator.com</p>
+  </div>
+</footer>
+<script>
+(function () {
+  var FULL_LITRES = 2261.9467;
+
+  function fmt(n, d) {
+    return n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+
+  // Full-tank calculator
+  var radiusEl = document.getElementById("radius");
+  var lengthEl = document.getElementById("length");
+  var unitEl = document.getElementById("unit");
+  function calcFull() {
+    var r = parseFloat(radiusEl.value);
+    var L = parseFloat(lengthEl.value);
+    if (!(r > 0) || !(L > 0)) return;
+    var factor = unitEl.value === "cm" ? 0.01 : 1;
+    var rm = r * factor, Lm = L * factor;
+    var m3 = Math.PI * rm * rm * Lm;
+    var litres = m3 * 1000;
+    document.getElementById("outM3").textContent = fmt(m3, 3) + " m³";
+    document.getElementById("outL").textContent = fmt(litres, 1) + " L";
+    document.getElementById("outGal").textContent = fmt(litres / 3.78541, 1) + " gal";
+  }
+  radiusEl.addEventListener("input", calcFull);
+  lengthEl.addEventListener("input", calcFull);
+  unitEl.addEventListener("change", calcFull);
+  calcFull();
+
+  // Part-fill explorer (r = 1 units; h = fill depth)
+  function segFrac(depthFrac) {
+    var h = depthFrac * 2;
+    if (h <= 0) return 0;
+    if (h >= 2) return 1;
+    var area = Math.acos(1 - h) - (1 - h) * Math.sqrt(2 * h - h * h);
+    return area / Math.PI;
+  }
+  var depthEl = document.getElementById("depth");
+  var liquidRect = document.getElementById("liquidRect");
+  var levelLine = document.getElementById("levelLine");
+  var sideLiquid = document.getElementById("sideLiquid");
+  var sideLevel = document.getElementById("sideLevel");
+  function updateFill() {
+    var d = parseFloat(depthEl.value) / 100; // fraction of diameter
+    var frac = segFrac(d);
+    var litres = FULL_LITRES * frac;
+    document.getElementById("depthLabel").textContent = depthEl.value + "%";
+    document.getElementById("volPct").textContent = fmt(frac * 100, 1) + "%";
+    document.getElementById("volL").textContent = fmt(litres, 1) + " L";
+    document.getElementById("volGal").textContent = fmt(litres / 3.78541, 1) + " gal";
+    // End view: circle spans y 20..200 (diameter 180px). Liquid top = 200 - d*180.
+    var top = 200 - d * 180;
+    liquidRect.setAttribute("y", top);
+    liquidRect.setAttribute("height", 200 - top);
+    levelLine.setAttribute("y1", top);
+    levelLine.setAttribute("y2", top);
+    // Side view: tank spans y 25..125 (height 100px). Liquid top = 125 - d*100.
+    var stop = 125 - d * 100;
+    sideLiquid.setAttribute("y", stop);
+    sideLiquid.setAttribute("height", 125 - stop);
+    sideLevel.setAttribute("y1", stop);
+    sideLevel.setAttribute("y2", stop);
+  }
+  depthEl.addEventListener("input", updateFill);
+  updateFill();
+})();
+</script>
+</body>
+</html>
